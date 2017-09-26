@@ -98,7 +98,7 @@ Compare and contrast the two curves and hypothesize as to the root cause of any 
 
 # Bonus
 
-Repeat the whole process, but let `credit_train` be a random sample of size 280
+Repeat the whole process, but let `credit_train` be a random sample of size 380
 from `credit` instead of 20. Now compare and contrast this graph with the
 one above and hypothesize as to the root cause of any differences.
 
