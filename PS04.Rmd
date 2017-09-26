@@ -1,0 +1,107 @@
+---
+title: "STAT/MATH 495: Problem Set 04"
+author: "WRITE YOUR NAME HERE"
+date: "2017-10-03"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    collapsed: false
+    smooth_scroll: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width=8, fig.height=4.5, message=FALSE)
+set.seed(76)
+```
+
+# Collaboration
+
+Please indicate who you collaborated with on this assignment:
+
+
+# Load packages, data, model formulas
+
+```{r, warning=FALSE}
+library(tidyverse)
+credit <- read_csv("http://www-bcf.usc.edu/~gareth/ISL/Credit.csv") %>%
+  select(-X1) %>%
+  mutate(ID = 1:n()) %>% 
+  select(ID, Balance, Income, Limit, Rating, Age, Cards, Education)
+```
+
+You will train the following 7 models on `credit_train`...
+
+```{r}
+model1_formula <- as.formula("Balance ~ 1")
+model2_formula <- as.formula("Balance ~ Income")
+model3_formula <- as.formula("Balance ~ Income + Limit")
+model4_formula <- as.formula("Balance ~ Income + Limit + Rating")
+model5_formula <- as.formula("Balance ~ Income + Limit + Rating + Age")
+model6_formula <- as.formula("Balance ~ Income + Limit + Rating + Age + Cards")
+model7_formula <- as.formula("Balance ~ Income + Limit + Rating + Age + Cards + Education")
+```
+
+... where `credit_train` is defined below, along with `credit_test`.
+
+```{r}
+set.seed(79)
+credit_train <- credit %>% 
+  sample_n(20)
+credit_test <- credit %>% 
+  anti_join(credit_train, by="ID")
+```
+
+
+# RMSE vs number of coefficients
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+# Placeholder vectors of length 7. For now, I've filled them with arbitrary 
+# values; you will fill these in
+RMSE_train <- runif(n=7)
+RMSE_test <- runif(n=7)
+
+
+# Do your work here:
+
+
+# Save results in a data frame. Note this data frame is in wide format.
+results <- data_frame(
+  num_coefficients = 1:7,
+  RMSE_train,
+  RMSE_test
+) 
+
+# Some cleaning of results
+results <- results %>% 
+  # More intuitive names:
+  rename(
+    `Training data` = RMSE_train,
+    `Test data` = RMSE_test
+  ) %>% 
+  # Convert results data frame to "tidy" data format i.e. long format, so that we
+  # can ggplot it
+  gather(type, RMSE, -num_coefficients)
+
+ggplot(results, aes(x=num_coefficients, y=RMSE, col=type)) +
+  geom_line() + 
+  labs(x="# of coefficients", y="RMSE", col="Data used to evaluate \nperformance of fitted model")
+```
+
+
+# Interpret the graph
+
+Compare and contrast the two curves and hypothesize as to the root cause of any differences.
+
+
+
+# Bonus
+
+Repeat the whole process, but let `credit_train` be a random sample of size 280
+from `credit` instead of 20. Now compare and contrast this graph with the
+one above and hypothesize as to the root cause of any differences.
+
+```{r, echo=FALSE}
+
+```
