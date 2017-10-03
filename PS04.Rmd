@@ -1,6 +1,6 @@
 ---
 title: "STAT/MATH 495: Problem Set 04"
-author: "WRITE YOUR NAME HERE"
+author: "Wayne Maumbe"
 date: "2017-10-03"
 output:
   html_document:
@@ -16,11 +16,6 @@ knitr::opts_chunk$set(echo = TRUE, fig.width=8, fig.height=4.5, message=FALSE)
 set.seed(76)
 ```
 
-# Collaboration
-
-Please indicate who you collaborated with on this assignment:
-
-
 # Load packages, data, model formulas
 
 ```{r, warning=FALSE}
@@ -30,8 +25,9 @@ credit <- read_csv("http://www-bcf.usc.edu/~gareth/ISL/Credit.csv") %>%
   mutate(ID = 1:n()) %>% 
   select(ID, Balance, Income, Limit, Rating, Age, Cards, Education)
 ```
+## Model
 
-You will train the following 7 models on `credit_train`...
+The following are the models trained on `credit_train`.
 
 ```{r}
 model1_formula <- as.formula("Balance ~ 1")
@@ -57,21 +53,50 @@ credit_test <- credit %>%
 # RMSE vs number of coefficients
 
 ```{r, echo=TRUE, warning=FALSE, message=FALSE}
-# Placeholder vectors of length 7. For now, I've filled them with arbitrary 
-# values; you will fill these in
-RMSE_train <- runif(n=7)
-RMSE_test <- runif(n=7)
+# Placeholder vectors of length 7. For now, I've filled them with arbitrary
+# values; you will fill these in 
+RMSE_train <- c(0,0,0,0,0,0,0)
+RMSE_test <- c(1,1,1,1,1,1,1)
 
 
-# Do your work here:
 
+# 1. Fit a model ----------------------------------------
+#create function that allows calculation for rmse as the mean of the squared difference of the predicted balance from the balance.  
+modelfitfxn<-function(m,tr,ts){
+  model <- lm(m, data=tr)
+  pred <- model%>%
+    broom::augment(newdata=ts)
+  pred <- pred %>%
+    mutate(sqdif=((pred$Balance-pred$.fitted)^2))
+  rsme<-sqrt(mean(pred$sqdif))
+  return(rsme)
+}
 
+#collect each model's rsme for both fitting on the test data and on the training data
+RMSE_test<-c(
+  modelfitfxn(model1_formula,credit_train,credit_test),
+  modelfitfxn(model2_formula,credit_train,credit_test),
+  modelfitfxn(model3_formula,credit_train,credit_test),
+  modelfitfxn(model4_formula,credit_train,credit_test),
+  modelfitfxn(model5_formula,credit_train,credit_test),
+  modelfitfxn(model6_formula,credit_train,credit_test),
+  modelfitfxn(model7_formula,credit_train,credit_test)
+  )
+
+RMSE_train<-c(
+  modelfitfxn(model1_formula,credit_test,credit_train),
+  modelfitfxn(model2_formula,credit_test,credit_train),
+  modelfitfxn(model3_formula,credit_test,credit_train),
+  modelfitfxn(model4_formula,credit_test,credit_train),
+  modelfitfxn(model5_formula,credit_test,credit_train),
+  modelfitfxn(model6_formula,credit_test,credit_train),
+  modelfitfxn(model7_formula,credit_test,credit_train))
 # Save results in a data frame. Note this data frame is in wide format.
 results <- data_frame(
-  num_coefficients = 1:7,
-  RMSE_train,
-  RMSE_test
-) 
+ num_coefficients = 1:7,
+ RMSE_train,
+ RMSE_test
+ )
 
 # Some cleaning of results
 results <- results %>% 
@@ -87,21 +112,93 @@ results <- results %>%
 ggplot(results, aes(x=num_coefficients, y=RMSE, col=type)) +
   geom_line() + 
   labs(x="# of coefficients", y="RMSE", col="Data used to evaluate \nperformance of fitted model")
+
 ```
 
 
-# Interpret the graph
+# Interpreting the graph
 
-Compare and contrast the two curves and hypothesize as to the root cause of any differences.
+A lower RMSE value for a model means the model is better at prediction. The graph above shows that for the models with  one, two, five, six ad seven predictor variables the prediction is worse on the test data than on the training data. The opposite is true for those with predictor variables three and four.
+
+For the test data, increasing the number of coefficients reduces the RMSE until there are 3 coefficients whereby any more increase in the number of coefficients is coupled with an increase in the RMSE. This could mean that the model does a good job estimating the signal as you increase the number of coefficients but there is a turning point whereby any increase in the number of coefficients  results in over-fitting.   
+The anomaly to this trend is that the RMSE value for 6 coefficients is lower than that for 5. This anomaly can be explained by considering the order in which the predictors are added to the model. This anomaly could be suggesting that Age is a better predictor because it lowers the RMSE.  
+
+For the training data, increasing the number of coefficients decreases the RMSE. A notable feature of this trend is the the sharp decrease between 1 and 3 coefficients and relativity flat decrease after 3 coefficients.This shows that as you increase the number of coefficients the model does a good job at estimating the signal until after adding 3 coefficients any more barely change the prediction power of the model.
+
+An interesting observation is the sharp descend as you add the credit limit.This suggests that the credit limit is the best predictor as upon its addition there is sharp decrease in RMSE.     
 
 
 
 # Bonus
 
-Repeat the whole process, but let `credit_train` be a random sample of size 380
+The whole process is repeated, but her we let `credit_train` be a random sample of size 380
 from `credit` instead of 20. Now compare and contrast this graph with the
 one above and hypothesize as to the root cause of any differences.
+```{r}
+set.seed(79)
+credit_train <- credit %>% 
+  sample_n(380)
+credit_test <- credit %>% 
+  anti_join(credit_train, by="ID")
+```
 
-```{r, echo=FALSE}
+
+# RMSE vs number of coefficients
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# Placeholder vectors of length 7. For now, I've filled them with arbitrary 
+# values; you will fill these in
+RMSE_train <- c(0,0,0,0,0,0,0)
+RMSE_test <- c(1,1,1,1,1,1,1)
+
+#collect each model's rsme for both fitting on the test data and on the training data
+RMSE_test<-c(
+  modelfitfxn(model1_formula,credit_train,credit_test),
+  modelfitfxn(model2_formula,credit_train,credit_test),
+  modelfitfxn(model3_formula,credit_train,credit_test),
+  modelfitfxn(model4_formula,credit_train,credit_test),
+  modelfitfxn(model5_formula,credit_train,credit_test),
+  modelfitfxn(model6_formula,credit_train,credit_test),
+  modelfitfxn(model7_formula,credit_train,credit_test))
+
+RMSE_train<-c(
+  modelfitfxn(model1_formula,credit_test,credit_train),
+  modelfitfxn(model2_formula,credit_test,credit_train),
+  modelfitfxn(model3_formula,credit_test,credit_train),
+  modelfitfxn(model4_formula,credit_test,credit_train),
+  modelfitfxn(model5_formula,credit_test,credit_train),
+  modelfitfxn(model6_formula,credit_test,credit_train),
+  modelfitfxn(model7_formula,credit_test,credit_train))
+# Save results in a data frame. Note this data frame is in wide format.
+results <- data_frame(
+ num_coefficients = 1:7,
+ RMSE_train,
+ RMSE_test
+ )
+
+# Some cleaning of results
+results <- results %>% 
+  # More intuitive names:
+  rename(
+    `Training data` = RMSE_train,
+    `Test data` = RMSE_test
+  ) %>% 
+  # Convert results data frame to "tidy" data format i.e. long format, so that we
+  # can ggplot it
+  gather(type, RMSE, -num_coefficients)
+
+ggplot(results, aes(x=num_coefficients, y=RMSE, col=type)) +
+  geom_line() + 
+  labs(x="# of coefficients", y="RMSE", col="Data used to evaluate \nperformance of fitted model")
 
 ```
+In comparison to the first graph above, this graph shows the RMSE value for the test data to be consistently lower than that of the training data except for the model with no predictor variables. 
+
+Like in the first case above, for both the training data and test data there is a sharp decrease in RMSE upon the addition of credit limit to the model. The hypothesis that after 3 coefficients any further addition of coefficients doesn't add to the prediction power of the model. 
+
+Unlike in the graph above, there seems to be a steady but bare increase in RMSE after the having added 5 or more coefficients to the model and this could also be attributed to overfitting. 
+
+As sample size increases standard error decreases. In the case where the training data is 20 vs in that where it is 380, the standard error is larger.This means that there is more noise in this case hence it is more likely to fit to noise in the case of n=20 vs n=380 for the training set. This means that the model fit to a training set with n=380 is more generalizable and estimates the signal better. Hence the fit on the test data is better on second graph than the first.
+
+
+
