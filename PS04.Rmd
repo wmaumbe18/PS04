@@ -84,13 +84,13 @@ RMSE_test<-c(
   )
 
 RMSE_train<-c(
-  modelfitfxn(model1_formula,credit_test,credit_train),
-  modelfitfxn(model2_formula,credit_test,credit_train),
-  modelfitfxn(model3_formula,credit_test,credit_train),
-  modelfitfxn(model4_formula,credit_test,credit_train),
-  modelfitfxn(model5_formula,credit_test,credit_train),
-  modelfitfxn(model6_formula,credit_test,credit_train),
-  modelfitfxn(model7_formula,credit_test,credit_train))
+  modelfitfxn(model1_formula,credit_train,credit_train),
+  modelfitfxn(model2_formula,credit_train,credit_train),
+  modelfitfxn(model3_formula,credit_train,credit_train),
+  modelfitfxn(model4_formula,credit_train,credit_train),
+  modelfitfxn(model5_formula,credit_train,credit_train),
+  modelfitfxn(model6_formula,credit_train,credit_train),
+  modelfitfxn(model7_formula,credit_train,credit_train))
 # Save results in a data frame. Note this data frame is in wide format.
 results <- data_frame(
  num_coefficients = 1:7,
@@ -118,12 +118,14 @@ ggplot(results, aes(x=num_coefficients, y=RMSE, col=type)) +
 
 # Interpreting the graph
 
-A lower RMSE value for a model means the model is better at prediction. The graph above shows that for the models with  one, two, five, six ad seven predictor variables the prediction is worse on the test data than on the training data. The opposite is true for those with predictor variables three and four.
+A lower RMSE value for a model means the model is better at prediction.
+The graph above shows that for all the models the prediction is worse on the test data than on the training data.
 
-For the test data, increasing the number of coefficients reduces the RMSE until there are 3 coefficients whereby any more increase in the number of coefficients is coupled with an increase in the RMSE. This could mean that the model does a good job estimating the signal as you increase the number of coefficients but there is a turning point whereby any increase in the number of coefficients  results in over-fitting.   
+For the test data, increasing the number of coefficients reduces the RMSE until there are 3 coefficients whereby any more increase in the number of coefficients is coupled with an increase in the RMSE. This could mean that the model does a good job estimating the signal as you increase the number of coefficients but there is a turning point whereby any increase in the number of coefficients  results in over-fitting. This means that the models with 1 and 2 coefficients are have a high RMSE because they are under-fitting whereas the increasing RMSE trend after adding 4 coefficients suggest the possibility of over-fitting.
+
 The anomaly to this trend is that the RMSE value for 6 coefficients is lower than that for 5. This anomaly can be explained by considering the order in which the predictors are added to the model. This anomaly could be suggesting that Age is a better predictor because it lowers the RMSE.  
 
-For the training data, increasing the number of coefficients decreases the RMSE. A notable feature of this trend is the the sharp decrease between 1 and 3 coefficients and relativity flat decrease after 3 coefficients.This shows that as you increase the number of coefficients the model does a good job at estimating the signal until after adding 3 coefficients any more barely change the prediction power of the model.
+For the training data, increasing the number of coefficients decreases the RMSE. A notable feature of this trend is the the sharp decrease between 2 and 3 coefficients and relativity gradual decrease after 3 coefficients.This shows that as you increase the number of coefficients the model does a good job at estimating the signal until after adding 3 coefficients any more barely change the prediction power of the model.Like in the case for fitting on the test data, there is under-fitting when there is 1 and 2 coefficients in the model.
 
 An interesting observation is the sharp descend as you add the credit limit.This suggests that the credit limit is the best predictor as upon its addition there is sharp decrease in RMSE.     
 
@@ -162,13 +164,13 @@ RMSE_test<-c(
   modelfitfxn(model7_formula,credit_train,credit_test))
 
 RMSE_train<-c(
-  modelfitfxn(model1_formula,credit_test,credit_train),
-  modelfitfxn(model2_formula,credit_test,credit_train),
-  modelfitfxn(model3_formula,credit_test,credit_train),
-  modelfitfxn(model4_formula,credit_test,credit_train),
-  modelfitfxn(model5_formula,credit_test,credit_train),
-  modelfitfxn(model6_formula,credit_test,credit_train),
-  modelfitfxn(model7_formula,credit_test,credit_train))
+  modelfitfxn(model1_formula,credit_train,credit_train),
+  modelfitfxn(model2_formula,credit_train,credit_train),
+  modelfitfxn(model3_formula,credit_train,credit_train),
+  modelfitfxn(model4_formula,credit_train,credit_train),
+  modelfitfxn(model5_formula,credit_train,credit_train),
+  modelfitfxn(model6_formula,credit_train,credit_train),
+  modelfitfxn(model7_formula,credit_train,credit_train))
 # Save results in a data frame. Note this data frame is in wide format.
 results <- data_frame(
  num_coefficients = 1:7,
@@ -192,13 +194,9 @@ ggplot(results, aes(x=num_coefficients, y=RMSE, col=type)) +
   labs(x="# of coefficients", y="RMSE", col="Data used to evaluate \nperformance of fitted model")
 
 ```
-In comparison to the first graph above, this graph shows the RMSE value for the test data to be consistently lower than that of the training data except for the model with no predictor variables. 
+Unlike in the first graph, this graph shows the RMSE value for the test data  starts off higher, and then goes lower than that of the training data after increasing number of coefficients over 3.
 
-Like in the first case above, for both the training data and test data there is a sharp decrease in RMSE upon the addition of credit limit to the model. The hypothesis that after 3 coefficients any further addition of coefficients doesn't add to the prediction power of the model. 
+Like in the first case above, for both the training data and test data there is a sharp decrease in RMSE upon the addition of credit limit to the model. The hypothesis that after 3 coefficients any further addition of coefficients doesn't add to the prediction power of the model still applies in this case.Also hypothesis that for both the training and test data, there is under-fitting for the models with 1 and 2 coefficients.   
 
-Unlike in the graph above, there seems to be a steady but bare increase in RMSE after the having added 5 or more coefficients to the model and this could also be attributed to overfitting. 
-
-As sample size increases standard error decreases. In the case where the training data is 20 vs in that where it is 380, the standard error is larger.This means that there is more noise in this case hence it is more likely to fit to noise in the case of n=20 vs n=380 for the training set. This means that the model fit to a training set with n=380 is more generalizable and estimates the signal better. Hence the fit on the test data is better on second graph than the first.
-
-
+As sample size increases standard error decreases. In the case where the training data is 20 vs in that where it is 380, the standard error is larger.This means that there is more noise in this case hence it is more likely to fit to noise in the case of n=20 vs n=380 for the training set. This means that the model fit to a training set with n=380 is more 'generalizable' and estimates the signal better. Hence the reason why the RMSE value for the test data goes lower than that of the training data may be because the fit on the test data is better on second graph than the first. This is because the when the training set is larger the model fit estimates the signal better.
 
