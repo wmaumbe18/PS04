@@ -127,6 +127,8 @@ The anomaly to this trend is that the RMSE value for 6 coefficients is lower tha
 
 For the training data, increasing the number of coefficients decreases the RMSE. A notable feature of this trend is the the sharp decrease between 2 and 3 coefficients and relativity gradual decrease after 3 coefficients.This shows that as you increase the number of coefficients the model does a good job at estimating the signal until after adding 3 coefficients any more barely change the prediction power of the model.Like in the case for fitting on the test data, there is under-fitting when there is 1 and 2 coefficients in the model.
 
+Also, the training data has RMSE consistently lower than that for the test data because of the Texas sharpshooter fallacy. This is because the models were created and fitted on the same data hence it is more likely to fit better on the training. 
+
 An interesting observation is the sharp descend as you add the credit limit.This suggests that the credit limit is the best predictor as upon its addition there is sharp decrease in RMSE.     
 
 
